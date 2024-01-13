@@ -34,7 +34,6 @@ class Family:
         self.all_tasks = []
         
         self.family_id = Family.family_count #family id for db
-
         Family.family_count += 1 #counter for how many family count
     
 
@@ -67,7 +66,12 @@ class Family:
         
         self.members[index].add_task(task)
     
-    
+    def unassign_task(self,task, person_name):
+        index = self.person_name_to_member_index(person_name)
+        if(index == -1):
+            print("Error with member array")
+        
+        self.members[index].remove_task(task)
 
     def person_name_to_member_index(self, person_name):
         #return index of person on person's name
