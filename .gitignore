@@ -1,0 +1,7 @@
+# .gitignore
+pet_venv/
+__pycache__/
+
+#logs
+logs/
+
