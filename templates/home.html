@@ -54,14 +54,13 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="table-active">
-                                    <td>
-                                        Task 1
-                                    </td>
-                                    <td>
-                                        times of task 1
-                                    </td>
-                                </tr>
+                                {%- for row in your_tasks %}
+                                    <tr>
+                                    {%- for column in row %}
+                                        <td>{{ column }}</td>
+                                    {%- endfor %}
+                                    </tr>
+                                {%- endfor %}
                             </tbody>
                         </table>
                     </div>

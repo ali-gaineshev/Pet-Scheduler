@@ -1,3 +1,5 @@
+#class Pets:
+
 class Person:
 
     def __init__(self, name, email, password):
