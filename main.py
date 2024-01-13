@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, make_response, redirect
 from flask_login import LoginManager
 import datetime
+from family import Family 
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -20,6 +21,11 @@ def home():
 def login():
     
     return render_template("login.html")
+
+def test():
     
+
+
 if __name__ == '__main__':
-    app.run(port = 5000, debug = True)
+    #app.run(port = 5000, debug = True)
+    test()
