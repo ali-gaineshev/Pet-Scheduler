@@ -1,0 +1,16 @@
+DB:
+- Connector
+
+Python:
+- Integrate db stuff into family.py i.e logic how values are updated, etc...
+-cookies
+-figure out session
+
+Flask: 
+
+HTML:
+- Jinja
+- Sign up: add family members right away
+- Home: Sign out button, if head member show a button to add tasks
+- Design add tasks page with repeating tasks, one time tasks (Jinja)
+- Login: remember me

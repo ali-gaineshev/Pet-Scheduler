@@ -1,4 +1,8 @@
-#class Pets:
+class Pets:
+
+    def __init__(self, family_id, name):
+        self.family_id = family_id
+        self.name = name
 
 class Person:
 
@@ -34,6 +38,7 @@ class Family:
         self.members: list[Person] = members #a list of member objects
         self.head_member = self.members[0] #admin role
         self.all_tasks = []
+        self.pets = []
         
         self.family_id = Family.family_count #family id for db
         Family.family_count += 1 #counter for how many family count
