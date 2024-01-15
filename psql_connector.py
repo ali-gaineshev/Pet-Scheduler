@@ -1,16 +1,19 @@
 import psycopg2 
 import sys 
 
-db_params = {
-    'host': '/var/run/postgresql',
-    'port': '5432',
-    'database': 'pet_scheduler_db',
-    'user': 'ali',
-    'password': 'admin'
-}
+
+
+def read_credentials():
+    params = {}
+    with open("./secret/db_secret.txt") as f:
+        for i in range(5):
+            line = f.readline()
+            split_line = line.split(":")
+            params[split_line[0].strip()] = split_line[1].strip()
+    return params
 
 def main(): 
-                                             
+    db_params = read_credentials()                                
     try:
         conn = psycopg2.connect(**db_params) 
         print("Database connected")

@@ -54,6 +54,13 @@ def main_page():
 def not_found_page(undefined_path):
     return f"Page not found. Link to login - <a href='http://127.0.0.1:5000/login'>[HERE]</a>"
 
+
+
+
+
+
+
+
 if __name__ == '__main__':
     app.run(port = 5000, debug = True)
     #task()

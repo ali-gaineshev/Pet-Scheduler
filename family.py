@@ -7,6 +7,7 @@ class Pets:
 class Person:
 
     def __init__(self, name, email, password):
+        self.person_id = None #update after sql
         self.name = name
         self.email = email
         self.password = password 
@@ -104,8 +105,11 @@ class Task:
         self.name = name #the task string
         self.date = date #yyyy-mm-dd
         self.id = Task.task_count
+        self.completed = False
         Task.task_count += 1
 
+    def change_completed(completed):
+        self.completed = completed
     def edit_task_name(self , new_name):
         self.name = new_name
     def edit_task_date(self, new_date):
