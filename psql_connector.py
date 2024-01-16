@@ -1,5 +1,6 @@
 import psycopg2 
 from flask import g
+from family import Family, Task, Person
 
 PATH_TO_PARAMS = "./secret/db_secret.txt"
 
@@ -49,26 +50,21 @@ def add_user(name, email, password):
     try:
         with conn:
             with conn.cursor() as cursor:
+                #check if email is already in db
+                cursor.execute("SELECT * FROM PERSONS where email = (%s)", (email,))
+                match_len = len(cursor.fetchall())
+                if(match_len > 0):
+                    print("----DEBUG: EMAIL IS ALREADY IN DB")
+                    return None
+                #email is not in db
                 cursor.execute("INSERT INTO PERSONS(name, email, password) VALUES (%s, %s, %s) RETURNING person_id", (name, email, password))
                 person_id = cursor.fetchone()[0]
             conn.commit()
-            
+
     except Exception as e:
-        print(f"Error adding user: {e}")
+        print(f"\n--ERROR with adding a new user: {e}\n")
 
     return person_id
-
-def get_user_info(email):
-    info = None
-    try:
-        with get_db() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute("SELECT * FROM PERSONS WHERE email = %s", (email,))
-                info = cursor.fetchone()
-    except Exception as e:
-        print(f"Error checking user: {e}")
-
-    return info
 
 def create_family(head_member_id):
     """
@@ -87,47 +83,101 @@ def create_family(head_member_id):
             with conn.cursor() as cursor:
                 cursor.execute("INSERT INTO FAMILIES(head_member_id) VALUES (%s) RETURNING family_id", (head_member_id,))
                 family_id = cursor.fetchone()[0]
+                cursor.execute("INSERT INTO FAMILYMEMBERS(family_id, person_id) VALUES (%s, %s)", (family_id, head_member_id))
             conn.commit()
 
     except Exception as e:
-        print(f"Error adding family: {e}")
+        print(f"\n--ERROR with creating a family: {e}\n")
 
     return family_id
 
-def execute_commands(conn, input_title):
-    cur = conn.cursor() 
-    cur.execute(f"select * from user026_series('{input_title}')") 
-    series_sql = cur.fetchall()
-    
+def add_user_to_family(person_id, family_id):
+    """
+    Add a new user to family. Use after get_user_info() and add_user(). Check if person is in any other family
+    Assumption: user exits in persons
+    """
+    conn = get_db()
+    if conn is None:
+        print("No connection")
+        return None
+    try:
+        with conn:
+            with conn.cursor() as cursor:
+                cursor.execute("INSERT INTO FAMILYMEMBERS(family_id, person_id) VALUES (%s, %s)", (family_id, person_id))
+            conn.commit()
 
-    if(len(series_sql) > 1):
-        print(f"Error. There are {len(series_sql)} tv series with the same title!")
-        exit(1)
-    
-    if(series_sql == [] or series_sql[0] == (None,None, None, None, None, None, None)):
-        print("Error. Couldn't find the title!")
-        exit(1)
+    except Exception as e:
+        print(f"\n--ERROR adding a user to a family: {e}\n")
 
-    series_sql = series_sql[0]
-    series = {"Series" : series_sql[0], "Year": series_sql[1], "Number of Seasons": series_sql[2], "Number of Episodes": series_sql[3], "Runtime": series_sql[4], "Rating": series_sql[5], "Votes": series_sql[6]}
-    
-    cur.execute(f"select * from user026_episodes('{input_title}')") 
-    episodes_sql = cur.fetchall()
+def create_task(name, date, family_id = None):
+    """
+    Creates a task in db, return the new task_id. Family_id is optional but preffered to do it right away
+    Doesn't assign a task.
+    """
+    task_id = None
+    conn = get_db()
+    if conn is None:
+        print("No connection")
+        return None
+    try:
+        with conn:
+            with conn.cursor() as cursor:
+                cursor.execute("INSERT INTO TASKS(name, date) VALUES (%s, %s) RETURNING task_id", (name, date))
+                task_id = cursor.fetchone()[0]
+                if(family_id is not None):
+                    cursor.execute("INSERT INTO FAMILYTASKS (family_id, task_id) VALUES (%s, %s)", (family_id, task_id))
 
-    if(episodes_sql == []):
-        print("Something went wrong. Couldn't use the title")
-        exit(1)
-   
-    episodes = []
-    for row in episodes_sql:
-            season = {"Season" : row[0], "Year": row[1], "Episodes": row[2], "Avg. Votes": row[3], "Avg. Rating": row[4], "Difference": row[5]}
-            episodes.append(season)
+            conn.commit()
+    except Exception as e:
+        print(f"\n--ERROR with creating a task: {e}\n")
+    return task_id
 
-    print_html(series,episodes)
+def give_task_to_user(task_id, person_id):
+    """
+    Assign a task to a specific user. Returns family_id
+    """
+    conn = get_db()
+    if conn is None:
+        print("No connection")
+        return None
+    try:
+        with conn:
+            with conn.cursor() as cursor:
+                cursor.execute("UPDATE TASKS set person_id = (%s) where task_id = (%s) RETURNING family_id", (person_id, task_id))
+                family_id = cursor.fetchone()[0]
+            conn.commit()
+    except Exception as e:
+        print(f"\n--ERROR with giving task to a user: {e}\n")
+    return task_id  
 
-    cur.close()
-    conn.close() 
+def get_user_info(email):
+    """
+    Get all of the user information based on email
+    Returns:
+        4 elem tuple - (person_id, name, email, password)
+    """
+    info = None
+    try:
+        with get_db() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT * FROM PERSONS WHERE email = %s", (email,))
+                info = cursor.fetchone()
+    except Exception as e:
+        print(f"\n--ERROR getting user info: {e}\n")
 
+    return info
 
-if __name__ == '__main__':
-    main()
+def get_family_info(family_id):
+    head_member_id = None
+    member_ids = None
+    try:
+        with get_db() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT * FROM FAMILIES WHERE family_id = %s", (family_id,))
+                head_member_id = cursor.fetchone()[0]
+                cursor.execute("SELECT * FROM FAMILYMEMBERS WHERE family_id = (%s)", (family_id,))
+                member_ids = cursor.fetchall()    
+    except Exception as e:
+        print(f"\n--ERROR getting family info: {e}\n")
+
+    return head_member_id, member_ids

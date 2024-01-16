@@ -42,9 +42,20 @@ def login():
     return render_template("login.html")
 
 def test():
-    person_id = psql_connector.add_user("te2st3", "tes11asdsat@email.com","test123")
-    print(f"{person_id} - {type(person_id)}" )
-    print(psql_connector.create_family(person_id))
+    person_id = psql_connector.add_user("aa","tt1","aaa")
+    family_id = psql_connector.create_family(person_id)
+    person_id1 = psql_connector.add_user("aa","tt13","aaa")
+    person_id2 = psql_connector.add_user("aa","tt14","aaa")
+    person_id3 = psql_connector.add_user("aa","tt15","aaa")
+
+    psql_connector.add_user_to_family(person_id1, family_id)
+    psql_connector.add_user_to_family(person_id2, family_id)
+    psql_connector.add_user_to_family(person_id3, family_id)
+
+    head_member_id, member_ids = psql_connector.get_family_info(family_id)
+    
+    print("\nHEAD: ", head_member_id)
+    print(member_ids,"\n")
 
 @app.route("/signup", methods = ['GET', 'POST'])
 def signup():
