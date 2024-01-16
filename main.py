@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, session, make_response, redir
 from flask_login import LoginManager
 import datetime
 from family import Family , Person, Task
+import psql_connector
 
 app = Flask(__name__)
 #login_manager = LoginManager()
@@ -16,7 +17,7 @@ password = "admin"
 #@app.route("/home")
 @app.route("/")
 def home():
-    return redirect("/test")
+
     if 'username' in session:
         return redirect("/home")
     else:
@@ -27,6 +28,7 @@ def home():
 @app.route("/login", methods = ['GET', 'POST'])
 def login():
     error = None
+    test()
 
     if request.method == 'POST':
         
@@ -38,6 +40,11 @@ def login():
             return redirect("/home")
 
     return render_template("login.html")
+
+def test():
+    person_id = psql_connector.add_user("te2st3", "tes11asdsat@email.com","test123")
+    print(f"{person_id} - {type(person_id)}" )
+    print(psql_connector.create_family(person_id))
 
 @app.route("/signup", methods = ['GET', 'POST'])
 def signup():

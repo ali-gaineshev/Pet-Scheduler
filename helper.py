@@ -4,4 +4,6 @@ def create_person(name, email, password):
     new_person = Person(name, email, password)
 
 
-def create_family()
+def create_family(members: list[Person]):
+    new_family = Family(members)
+    
