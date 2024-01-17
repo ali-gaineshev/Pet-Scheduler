@@ -42,11 +42,11 @@ def login():
     return render_template("login.html")
 
 def test():
-    person_id = psql_connector.add_user("aa","tt1","aaa")
+    person_id = psql_connector.add_user("head","test1","test")
     family_id = psql_connector.create_family(person_id)
-    person_id1 = psql_connector.add_user("aa","tt13","aaa")
-    person_id2 = psql_connector.add_user("aa","tt14","aaa")
-    person_id3 = psql_connector.add_user("aa","tt15","aaa")
+    person_id1 = psql_connector.add_user("p1","test2","test")
+    person_id2 = psql_connector.add_user("p2","test3","test")
+    person_id3 = psql_connector.add_user("p3","test4","test")
 
     psql_connector.add_user_to_family(person_id1, family_id)
     psql_connector.add_user_to_family(person_id2, family_id)
@@ -54,6 +54,9 @@ def test():
 
     head_member_id, member_ids = psql_connector.get_family_info(family_id)
     
+    #psql_connector.create_task("Walk Yumi","2024-01-17", family_id)
+    #psql_connector.create_task("Walk Yumi","2024-01-17", family_id)
+
     print("\nHEAD: ", head_member_id)
     print(member_ids,"\n")
 

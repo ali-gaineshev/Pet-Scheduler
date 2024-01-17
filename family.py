@@ -101,9 +101,11 @@ class Family:
 class Task:
     task_count = 1
 
-    def __init__(self, name, date):
+    def __init__(self, name, date, start_time, end_time):
         self.name = name #the task string
         self.date = date #yyyy-mm-dd
+        self.start_time = start_time
+        self.end_time = end_time
         self.id = Task.task_count
         self.completed = False
         Task.task_count += 1
