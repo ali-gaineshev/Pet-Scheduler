@@ -147,6 +147,22 @@ def assign_task_to_user(cursor, task_id, person_id):
         print(f"\n--ERROR with giving task to a user: {e}\n")
     return family_id  
 
+@get_db_connection(commit = True)
+def change_task_complete(task_id, complete):
+    """
+    Assumption: task is already assigned to a family
+    """
+    task = None
+    try:
+        cursor.execute("UPDATE FAMILYTASKS SET complete = (%s) WHERE task_id = (%s)", (complete, task_id))
+        task = cursor.fetchone()
+
+    except Exception as e:
+        print(f"\n--ERROR changing task.complete bool: {e}\n")
+
+    return task
+
+
 @get_db_connection(commit = False)
 def get_user_info(cursor, email):
     """
@@ -178,5 +194,34 @@ def get_family_info(cursor, family_id):
     return head_member_id, member_ids
 
 @get_db_connection(commit = False)
-def get_task_info():
-    print("")
+def get_family_tasks(family_id):
+    """
+    Assumption: task is already assigned to a family
+    Returns:
+        array of tasks
+    """
+    family_tasks = []
+    try:
+        cursor.execute("SELECT * from FAMILYTASKS WHERE family_id = (%s)", (family_id,))
+        family_tasks = cursor.fetchall()
+
+    except Exception as e:
+        print(f"\n--ERROR getting family's tasks info: {e}\n")
+
+    return family_tasks
+
+@get_db_connection(commit = False)
+def get_task_info(task_id):
+    """
+    Assumption: task is already assigned to a family
+    """
+    task = None
+    try:
+        cursor.execute("SELECT * from TASKS WHERE task_id = (%s)", (task_id,))
+        task = cursor.fetchone()
+
+    except Exception as e:
+        print(f"\n--ERROR getting task info: {e}\n")
+
+    return task
+

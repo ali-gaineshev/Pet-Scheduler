@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, make_response, redirect
+from flask import Flask, render_template, request, session, make_response, redirect, g
 from flask_login import LoginManager
 import datetime
 from family import Family , Person, Task
@@ -54,8 +54,8 @@ def test():
 
     head_member_id, member_ids = psql_connector.get_family_info(family_id)
     
-    #psql_connector.create_task("Walk Yumi","2024-01-17", family_id)
-    #psql_connector.create_task("Walk Yumi","2024-01-17", family_id)
+    psql_connector.create_task(name = "Walk Yumi",date ="2024-01-17",start_time = 00:00:00, end_time = 11:11:11, family_id = family_id)
+    psql_connector.create_task(name = "Walk Yumi",date = "2024-01-17",start_time = 11:11:11, end_time = 22:22:22, family_id = family_id)
 
     print("\nHEAD: ", head_member_id)
     print(member_ids,"\n")
