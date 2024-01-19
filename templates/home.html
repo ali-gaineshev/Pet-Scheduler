@@ -29,13 +29,6 @@
                     </li>
                     <li class="nav-item">
                     </li>
-                    <li class="nav-item dropdown ml-md-auto">
-                        <a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown">Pick Family</a>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="#">Family 1</a>
-                            <a class="dropdown-item" href="#">Family 2 etc</a>
-                        </div>
-                    </li>
                 </ul>
                 <div class="row">
                     <div class="col-md-4">
@@ -54,13 +47,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {%- for row in your_tasks %}
+                                {% for task in your_tasks %}
                                     <tr>
-                                    {%- for column in row %}
-                                        <td>{{ column }}</td>
-                                    {%- endfor %}
+                                        <td>{{task['Task']}}</td>
+                                        <td>{{task['Date']}}</td>
                                     </tr>
-                                {%- endfor %}
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -85,15 +77,13 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>
-                                        Name 1
-                                    </td>
-                                    <td>
-                                        Date 1
-                                    </td>
-                                    <td>
-                                        Task 1 
-                                    </td>
+                                    {%- for task in upcoming_tasks %}
+                                    <tr>
+                                        <td>{{task['Name']}}</td>
+                                        <td>{{task['Date']}}</td>
+                                        <td>{{task['Task']}}</td>
+                                    </tr>
+                                    {%- endfor %}
                                 </tr>
                             </tbody>
                         </table>
@@ -119,17 +109,17 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>
-                                        Task 1 name
-                                    </td>
-                                    <td>
-                                        task 1 date
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-success active">
-                                            Take
-                                        </button>
-                                    </td>
+                                    {%- for task in available_tasks %}
+                                    <tr>
+                                        <td>{{task['Task']}}</td>
+                                        <td>{{task['Date']}}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-success active" name= {{ task["Button_Identifier"] }}>
+                                                Take
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {%- endfor %}
                                 </tr>
                             </tbody>
                         </table>
