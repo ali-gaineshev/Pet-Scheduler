@@ -1,5 +1,6 @@
 DB:
-- Connector
+- Delete tasks from TASKS after completing
+- 
 
 Python:
 - Integrate db stuff into family.py i.e logic how values are updated, etc...
@@ -7,10 +8,18 @@ Python:
 -figure out session
 
 Flask: 
+- MATCH HTML
+
 
 HTML:
-- Jinja
-- Sign up: add family members right away
-- Home: Sign out button, if head member show a button to add tasks
-- Design add tasks page with repeating tasks, one time tasks (Jinja)
-- Login: remember me
+- IN SIGN UP PAGE, after making an account, be able to add users or skip
+- IN LOGIN PAGE, login as "TEST PERSON"
+- IN HOME PAGE: 
+	*for "MY TASKS", add button to unassign task and complete task!
+		^ if unassigned then add task back to "AVAILABLE TASKS"
+		^ if complete tasks, remove from "MY TASKS"
+		^ ALSO IF HEAD MEMBER add buttom to DELETE TASKS FOR EVERYONE (in sql check foreign keys) (LATER)
+	* ADD COLUMNS TO MATCH ACTUAL INFORMATION 
+	* FIGURE OUT MAXIMUM TEXT CHARACTERS for task name so it looks nice	
+	* ADD GENERAL BUTTON TO ADD MEMBERS (same link as SIGN UP PAGE)
+	* ADD GENERAL BUTTON TO SIGN OUT

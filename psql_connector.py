@@ -6,6 +6,9 @@ import functools
 PATH_TO_PARAMS = "./secret/db_secret.txt"
 
 def read_credentials():
+    """
+    READ DB credentials from secret path!
+    """
     params = {}
     with open(PATH_TO_PARAMS) as f:
         for i in range(5):
@@ -54,7 +57,8 @@ def get_db_connection(commit = True):
                 with conn:
                     with conn.cursor() as cursor:
                         return func(cursor, *args, **kwargs)
-                    conn.commit()
+                    if(commit == True):
+                        conn.commit()
             except Exception as e:
                 print(f"\n--ERROR with conn to db {e}\n")
         return wrapper
@@ -117,51 +121,67 @@ def add_user_to_family(cursor, person_id, family_id):
     except Exception as e:
         print(f"\n--ERROR adding a user to a family: {e}\n")
 
-@get_db_connection(commit = True)
-def create_task(cursor, name, date, start_time, end_time, family_id = None):
+@get_db_connection(commit=True)
+def create_task(cursor, name, date, start_time, end_time, family_id=None):
     """
-    Creates a task in db, return the new task_id. Family_id is optional but preffered to do it right away
-    Doesn't assign a task.
+    Creates a task in db, return the new task_id. Family_id is optional but preferred to do it right away
+    Doesn't assign a task to a person.
     """
     task_id = None
     try:
-        cursor.execute("INSERT INTO TASKS(name, date) VALUES (%s, %s) RETURNING task_id", (name, date))
+        cursor.execute(
+            "INSERT INTO TASKS(name, date, start_time, end_time) VALUES (%s, %s, %s, %s) RETURNING task_id",
+            (name, date, start_time, end_time),
+        )
         task_id = cursor.fetchone()[0]
-        if(family_id is not None):
-            cursor.execute("INSERT INTO FAMILYTASKS (family_id, task_id) VALUES (%s, %s)", (family_id, task_id))
+        if family_id is not None:
+            cursor.execute(
+                "INSERT INTO FAMILYTASKS (family_id, task_id) VALUES (%s, %s)",
+                (family_id, task_id),
+            )
 
     except Exception as e:
         print(f"\n--ERROR with creating a task: {e}\n")
     return task_id
 
+
 @get_db_connection(commit = True)
 def assign_task_to_user(cursor, task_id, person_id):
     """
     Assign a task to a specific user. Returns family_id
+    Returns
+        True if completed
+        False if error
     """
     family_id = None
     try:
-        cursor.execute("UPDATE TASKS set person_id = (%s) where task_id = (%s) RETURNING family_id", (person_id, task_id))
+        cursor.execute("UPDATE FAMILYTASKS set person_id = (%s) where task_id = (%s) RETURNING family_id", (person_id, task_id))
         family_id = cursor.fetchone()[0]
     except Exception as e:
         print(f"\n--ERROR with giving task to a user: {e}\n")
-    return family_id  
+    return family_id
 
 @get_db_connection(commit = True)
-def change_task_complete(task_id, complete):
+def change_task_complete(cursor, task_id, complete):
     """
     Assumption: task is already assigned to a family
     """
-    task = None
     try:
-        cursor.execute("UPDATE FAMILYTASKS SET complete = (%s) WHERE task_id = (%s)", (complete, task_id))
-        task = cursor.fetchone()
+        cursor.execute("UPDATE FAMILYTASKS SET completed = (%s) WHERE task_id = (%s)", (complete, task_id))
 
     except Exception as e:
         print(f"\n--ERROR changing task.complete bool: {e}\n")
 
-    return task
+@get_db_connection(commit = True)
+def unassign_task(cursor, task_id):
+    """
+    Assumption: task is already assigned to a family
+    """
+    try:
+        cursor.execute("UPDATE FAMILYTASKS SET person_id = NULL WHERE task_id = (%s)", (task_id, ))
 
+    except Exception as e:
+        print(f"\n--ERROR unassigning task from user: {e}\n")
 
 @get_db_connection(commit = False)
 def get_user_info(cursor, email):
@@ -169,6 +189,7 @@ def get_user_info(cursor, email):
     Get all of the user information based on email
     Returns:
         4 elem tuple - (person_id, name, email, password)
+        NONE - if no user
     """
     info = None
     try:        
