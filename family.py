@@ -6,8 +6,8 @@ class Pets:
 
 class Person:
 
-    def __init__(self, name, email, password):
-        self.person_id = None #update after sql
+    def __init__(self, person_id, name, email, password):
+        self.person_id = person_id #update after sql
         self.name = name
         self.email = email
         self.password = password 
@@ -32,18 +32,14 @@ class Person:
         return f"Name: {self.name}\nEmail: {self.email}\nPass: {self.password}\nTasks: {self.tasks}"
 
 class Family:
-    family_count = 1 #for db purposes
 
-    def __init__(self, members):
+    def __init__(self, id, members):
         
         self.members: list[Person] = members #a list of member objects
         self.head_member = self.members[0] #admin role
         self.all_tasks = []
         self.pets = []
         
-        self.family_id = Family.family_count #family id for db
-        Family.family_count += 1 #counter for how many family count
-    
 
     def add_member(self, new_member):
         self.members.append(new_member)
@@ -99,19 +95,20 @@ class Family:
         
 
 class Task:
-    task_count = 1
 
-    def __init__(self, name, date, start_time, end_time):
+    def __init__(self, id, name, date, start_time, end_time):
         self.name = name #the task string
         self.date = date #yyyy-mm-dd
         self.start_time = start_time
         self.end_time = end_time
-        self.id = Task.task_count
         self.completed = False
-        Task.task_count += 1
+        self.person_id_to_do = None
 
-    def change_completed(completed):
+    def assign_task(self,person_id):
+        self.person_id_to_do = person_id
+    def change_completed(self,completed):
         self.completed = completed
+
     def edit_task_name(self , new_name):
         self.name = new_name
     def edit_task_date(self, new_date):

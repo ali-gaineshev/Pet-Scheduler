@@ -184,24 +184,47 @@ def unassign_task(cursor, task_id):
         print(f"\n--ERROR unassigning task from user: {e}\n")
 
 @get_db_connection(commit = False)
-def get_user_info(cursor, email):
+def get_user_info(cursor, email, person_id = None):
     """
     Get all of the user information based on email
+
+    Parameters:
+    - email - primary
+    - person_id
+
     Returns:
-        4 elem tuple - (person_id, name, email, password)
-        NONE - if no user
+    4 elem tuple - (person_id, name, email, password)
+    NONE - if no user
     """
     info = None
-    try:        
-        cursor.execute("SELECT * FROM PERSONS WHERE email = %s", (email,))
+    try: 
+        if(person_id is None):
+            cursor.execute("SELECT * FROM PERSONS WHERE email = %s", (email,))
+        else:
+            cursor.execute("SELECT * FROM PERSONS WHERE person_id = %s", (person_id,))            
         info = cursor.fetchone()
     except Exception as e:
         print(f"\n--ERROR getting user info: {e}\n")
 
     return info
 
+@get_db_connection(commit=False)
+def find_family_by_person_id(cursor, person_id):
+    family_id = None
+    try:
+        cursor.execute("SELECT family_id FROM FAMILYMEMBERS WHERE person_id = %s", (person_id,))
+        family_id = cursor.fetchone()[0]
+        
+    except Exception as e:
+        print(f"\n--ERROR getting family info from the person id: {e}\n")
+
+    return family_id
+
 @get_db_connection(commit = False)
 def get_family_info(cursor, family_id):
+    """
+    
+    """
     head_member_id = None
     member_ids = None
     try:
@@ -215,7 +238,7 @@ def get_family_info(cursor, family_id):
     return head_member_id, member_ids
 
 @get_db_connection(commit = False)
-def get_family_tasks(family_id):
+def get_family_tasks(cursor, family_id):
     """
     Assumption: task is already assigned to a family
     Returns:
@@ -232,7 +255,7 @@ def get_family_tasks(family_id):
     return family_tasks
 
 @get_db_connection(commit = False)
-def get_task_info(task_id):
+def get_task_info(cursor, task_id):
     """
     Assumption: task is already assigned to a family
     """

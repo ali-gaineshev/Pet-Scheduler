@@ -6,40 +6,62 @@ import psql_connector #as conn
 import helper
 
 app = Flask(__name__)
-#login_manager = LoginManager()
-#login_manager.init_app(app)
 
 app.secret_key = helper.get_key_to_session()
-url = None
-email_login = "admin"
-password = "admin"
-is_head_member = False
+URL = None
 
-#@app.route("/home")
+
+
+@app.before_request
+def before_request():
+    # Check if the user is logged in and fetch user info
+    if 'person_id' not in session and request.endpoint != 'login':
+        print(session)
+        return redirect("/login")
+    
+    if request.endpoint == 'login' or request.endpoint == 'signup':
+        if 'person_id' in session:
+            return redirect(url_for('home'))
+
+
+
+@app.route("/home")
 @app.route("/")
 def home():
+    if 'person_id' not in session:
+        return redirect(url_for('/login'))
+    
+    #retrieve general information
+    person = helper.get_user_info(session['person_id'])
 
-    if 'email' in session:
-        return redirect("/home")
+    if 'family_id' not in session:
+        family_id = helper.find_family_by_person_id(person.person_id)
+        members = helper.get_family_info(family_id)
+        add_info_to_session(members, person.person_id)
     else:
-        return redirect("/login")
+        family_id = session['family_id']
+        members = session['members']
+    is_head_member = session['is_head_member']
+    
+    all_tasks = helper.get_family_tasks(family_id=family_id)
 
+    return render_template("home.html", person = person, all_tasks = all_tasks)
 
 
 @app.route("/login", methods = ['GET', 'POST'])
 def login():
     error = None
-    #test()
-
     if request.method == 'POST':
-        
-        if request.form['email'] != email_login or request.form['password'] != password:
-            error = 'Invalid, please try again'
-        else:
-            session['email'] = request.form['email']
+        person_id, error = helper.validate_user(request.form['email'].lower(), request.form['password'])
+        if error is None:
+            session['person_id'] = person_id
             return redirect(url_for('home'))
 
-    return render_template("login.html")
+    return render_template("login.html", error = error)
+
+@app.route("/signup", methods = ['GET', 'POST'])
+def signup():
+    return render_template("signup.html")
 
 @app.route("/profile/<email>")
 def profile(email):
@@ -47,6 +69,17 @@ def profile(email):
     See profile, family members, your info
     """
     return email
+
+@app.route('/logout')
+def logout():
+    """
+    Remove the user from the session
+    """
+    session.pop('family_id', None)
+    session.pop('person_id', None)
+    session.pop('members', None)
+    session.pop('is_head_member', None)
+    return redirect(url_for('login'))
 
 def test():
     person_id = psql_connector.add_user("head","test1","test")
@@ -71,9 +104,7 @@ def test():
     i = psql_connector.get_user_info("....")
     print("\n\n", i)
 
-@app.route("/signup", methods = ['GET', 'POST'])
-def signup():
-    return render_template("signup.html")
+
 """
 @app.route("/home")
 def main_page():
@@ -96,6 +127,18 @@ def main_page():
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
+
+
+#@app.errorhandler(Exception)
+#def handle_exception(error):
+    return f"""It seems like something wrong happened.\n{error}"""
+
+
+def add_info_to_session(members, person_id):
+    if(person_id == members[0]):
+        session['is_head_member'] = True
+
+    session['members'] = members
 
 if __name__ == '__main__':
     app.run(port = 2010, debug = True)
