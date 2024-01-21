@@ -16,7 +16,7 @@ URL = None
 def before_request():
     # Check if the user is logged in and fetch user info
     if 'person_id' not in session and request.endpoint != 'login':
-        print(session)
+        print("\nSession items: ", session, "\n")
         return redirect("/login")
     
     if request.endpoint == 'login' or request.endpoint == 'signup':
@@ -41,17 +41,20 @@ def home():
     else:
         family_id = session['family_id']
         members = session['members']
-    is_head_member = session['is_head_member']
-    
-    all_tasks = helper.get_family_tasks(family_id=family_id)
 
-    return render_template("home.html", person = person, all_tasks = all_tasks)
+    is_head_member = session['is_head_member'] 
+    
+    result = helper.get_family_tasks(family_id=family_id, person_id=person.person_id)
+    your_tasks, upcoming_tasks, available_tasks = result[0], result[1], result[2]
+    
+    return render_template("home.html", person = person, your_tasks = your_tasks,upcoming_tasks = upcoming_tasks,available_tasks = available_tasks)
 
 
 @app.route("/login", methods = ['GET', 'POST'])
 def login():
     error = None
     if request.method == 'POST':
+        test()
         person_id, error = helper.validate_user(request.form['email'].lower(), request.form['password'])
         if error is None:
             session['person_id'] = person_id
@@ -82,27 +85,24 @@ def logout():
     return redirect(url_for('login'))
 
 def test():
-    person_id = psql_connector.add_user("head","test1","test")
-    family_id = psql_connector.create_family(person_id)
-    person_id1 = psql_connector.add_user("p1","test2","test")
-    person_id2 = psql_connector.add_user("p2","test3","test")
-    person_id3 = psql_connector.add_user("p3","test4","test")
+    person_id = psql_connector.add_user("Test person","test@example.com","test")
 
-    psql_connector.add_user_to_family(person_id1, family_id)
-    psql_connector.add_user_to_family(person_id2, family_id)
-    psql_connector.add_user_to_family(person_id3, family_id)
-
-    head_member_id, member_ids = psql_connector.get_family_info(family_id)
+    family_id = 1
+    psql_connector.add_user_to_family(person_id, family_id)
     
-    task_id1 = psql_connector.create_task(name = "Walk Yumi",date ="2024-01-17",start_time = "00:00:00", end_time = "11:11:11", family_id = family_id)
-    task_id2 = psql_connector.create_task(name = "Walk Yumi",date = "2024-01-17",start_time = "11:11:11", end_time = "22:22:22", family_id = family_id)
-    psql_connector.assign_task_to_user(task_id1, person_id)
-    psql_connector.assign_task_to_user(task_id2, person_id3)
+    
+    task_id1 = psql_connector.create_task(name = "Walk Yumi",date ="2024-01-17",start_time = "00:00:00", end_time = "10:10:11", family_id = family_id)
+    task_id2 = psql_connector.create_task(name = "Walk Yumid sadsadasdasdasd",date = "2024-01-17",start_time = "11:11:11", end_time = "22:22:22", family_id = family_id)
+    task_id3 = psql_connector.create_task(name = "Walk Yumi, walk YYYYYYYYYYYUMASDA",date = "2024-01-17",start_time = "12:11:11", end_time = "22:22:22", family_id = family_id)
+    task_id4 = psql_connector.create_task(name = "Walk Yumi aSDsadas ",date = "2024-01-17",start_time = "1:11:11", end_time = "22:22:22", family_id = family_id)
+    task_id5 = psql_connector.create_task(name = "Walk Yumi asdasdasdasdas ",date = "2024-01-17",start_time = "17:11:11", end_time = "23:22:22", family_id = family_id)
+    psql_connector.assign_task_to_user(task_id1, 1)
+    psql_connector.assign_task_to_user(task_id2, person_id)
+    psql_connector.assign_task_to_user(task_id3, 1)
+    psql_connector.assign_task_to_user(task_id4, 1)
+    
     psql_connector.change_task_complete(task_id2, True)
-    psql_connector.unassign_task(task_id1)
-
-    i = psql_connector.get_user_info("....")
-    print("\n\n", i)
+    #psql_connector.unassign_task(task_id1)
 
 
 """

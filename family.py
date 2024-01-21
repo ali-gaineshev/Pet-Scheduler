@@ -97,22 +97,30 @@ class Family:
 class Task:
 
     def __init__(self, id, name, date, start_time, end_time):
+        self.task_id = id
         self.name = name #the task string
         self.date = date #yyyy-mm-dd
         self.start_time = start_time
         self.end_time = end_time
         self.completed = False
         self.person_id_to_do = None
+        self.person_name_to_do = None
 
-    def assign_task(self,person_id):
+    def assign_task(self,person_id, name):
         self.person_id_to_do = person_id
+        self.person_name_to_do = name
+
     def change_completed(self,completed):
         self.completed = completed
 
+
+    def edit_date(self, date, start_time, end_time):
+        self.date = date
+        self.start_time = start_time
+        self.end_time = end_time
+
     def edit_task_name(self , new_name):
         self.name = new_name
-    def edit_task_date(self, new_date):
-        self.date = new_date
     def get_task(self):
         return self.name
     def get_date(self):
@@ -122,4 +130,4 @@ class Task:
         return f"Id - {self.id}. What to do: {self.name}. Date: {self.date}"
 
     def __repr__(self):
-        return f'Task({self.id},\'{self.name}\',\'{self.date}\' )'
+        return f'Task({self.task_id},\'{self.name}\',\'{self.date}\',\'{self.start_time}\',\'{self.end_time}\',\'{self.completed}\',\'{self.person_id_to_do}\' )'
