@@ -150,8 +150,7 @@ def assign_task_to_user(cursor, task_id, person_id):
     """
     Assign a task to a specific user. Returns family_id
     Returns
-        True if completed
-        False if error
+        
     """
     family_id = None
     try:

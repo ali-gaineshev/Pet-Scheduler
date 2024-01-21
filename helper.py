@@ -50,12 +50,16 @@ def get_family_info(family_id):
         _type_: _description_
     """
     head_member_id, member_ids = conn.get_family_info(family_id=family_id)
+    print(member_ids)
     members = [head_member_id]
     for member_tuple in member_ids:
         member_id = member_tuple[0]
         if(head_member_id != member_id):
             members.append(member_id)
     return members
+
+def assign_task(task_id, person_id):
+    conn.assign_task_to_user(task_id, person_id)
 
 def get_family_tasks(family_id, person_id):
     """_summary_

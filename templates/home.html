@@ -15,7 +15,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
-                <ul class="nav nav-pills">
+                <ul class="nav nav-pills mr-auto">
                     <li class="nav-item">
                         <a class="nav-link active" href="#">Home</a>
                     </li>
@@ -25,10 +25,9 @@
                     <li class="nav-item">
                         <a class="nav-link disabled" href="#">Family Members</a>
                     </li>
-                    <li class="nav-item ml-auto">Hi, {{person.name}}!
-                    </li>                    
-                    <li class="nav-item ml-auto"><a class="nav-link" href="{{url_for('logout')}}">Sign out</a>
-                    </li>
+                <li class="navbar-text ml-auto">Hi, {{ person.name }}!</li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Sign out</a></li>
+            
                 </ul>
                 <br>
                 <div class="row">
@@ -48,6 +47,9 @@
                                     <th scope = "col">
                                         Time
                                     </th>
+                                    <th>
+
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -56,6 +58,15 @@
                                         <td>{{task.name}}</td>
                                         <td>{{task.date}}</td>
                                         <td>{{task.start_time}} - {{task.end_time}}</td>
+                                        <td>
+                                            <form action="{{ url_for('home') }}" method = 'post'>
+                                                
+                                                    <button type="button" class="btn btn-outline-success btn-sm">Complete</button>
+                                                    <br>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm">Unassign</button>
+                                                                                                
+                                            </form>
+                                        </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
@@ -126,9 +137,11 @@
                                         <td>{{task.date}}</td>
                                         <td>{{task.start_time}} - {{task.end_time}}</td>
                                         <td>
-                                            <button type="button" class="btn btn-sm btn-success active" name= {{ task["Button_Identifier"] }}>
-                                                Take
-                                            </button>
+                                            <form action="{{ url_for('home') }}" method = 'post'>
+                                                <button type="submit" class="btn btn-sm btn-success active" name="take_task_button" value={{ task.task_id }}>
+                                                    Take
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                     {%- endfor %}

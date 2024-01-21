@@ -15,7 +15,7 @@ URL = None
 @app.before_request
 def before_request():
     # Check if the user is logged in and fetch user info
-    if 'person_id' not in session and request.endpoint != 'login':
+    if 'person_id' not in session and request.endpoint != 'login' and request.endpoint != 'signup':
         print("\nSession items: ", session, "\n")
         return redirect("/login")
     
@@ -26,13 +26,21 @@ def before_request():
 
 
 @app.route("/home")
-@app.route("/")
+@app.route("/", methods = ['GET', 'POST'])
 def home():
     if 'person_id' not in session:
         return redirect(url_for('/login'))
     
+
     #retrieve general information
     person = helper.get_user_info(session['person_id'])
+
+    if request.method == 'POST':
+        if('take_task_button' in request.form):
+            taken_task_id = request.form['take_task_button']
+            helper.assign_task(taken_task_id, person.person_id) 
+
+    print(request.form)
 
     if 'family_id' not in session:
         family_id = helper.find_family_by_person_id(person.person_id)
@@ -54,8 +62,14 @@ def home():
 def login():
     error = None
     if request.method == 'POST':
-        test()
-        person_id, error = helper.validate_user(request.form['email'].lower(), request.form['password'])
+        #test()
+        if 'test_button' in request.form:
+            request_email = 'admin'
+            request_password = 'admin123'
+        else:
+            request_email = request.form['email'].lower()
+            request_password = request.form['password']
+        person_id, error = helper.validate_user(request_email, request_password)
         if error is None:
             session['person_id'] = person_id
             return redirect(url_for('home'))
@@ -96,6 +110,8 @@ def test():
     task_id3 = psql_connector.create_task(name = "Walk Yumi, walk YYYYYYYYYYYUMASDA",date = "2024-01-17",start_time = "12:11:11", end_time = "22:22:22", family_id = family_id)
     task_id4 = psql_connector.create_task(name = "Walk Yumi aSDsadas ",date = "2024-01-17",start_time = "1:11:11", end_time = "22:22:22", family_id = family_id)
     task_id5 = psql_connector.create_task(name = "Walk Yumi asdasdasdasdas ",date = "2024-01-17",start_time = "17:11:11", end_time = "23:22:22", family_id = family_id)
+    task_id6 = psql_connector.create_task(name = "Walk Yumi asdasdasdasdas asdsdasdsadasdsadas",date = "2024-01-17",start_time = "17:11:11", end_time = "23:29:22", family_id = family_id)
+
     psql_connector.assign_task_to_user(task_id1, 1)
     psql_connector.assign_task_to_user(task_id2, person_id)
     psql_connector.assign_task_to_user(task_id3, 1)
