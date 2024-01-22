@@ -61,9 +61,9 @@
                                         <td>
                                             <form action="{{ url_for('home') }}" method = 'post'>
                                                 
-                                                    <button type="button" class="btn btn-outline-success btn-sm">Complete</button>
+                                                    <button type="button" class="btn btn-outline-success btn-sm" name = 'complete_task_btn' value = {{task.task_id}}>Complete</button>
                                                     <br>
-                                                    <button type="button" class="btn btn-outline-danger btn-sm">Unassign</button>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" name = 'unassign_task_btn' value = {{task.task_id}}>Unassign</button>
                                                                                                 
                                             </form>
                                         </td>
