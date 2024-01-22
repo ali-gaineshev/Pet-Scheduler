@@ -2,7 +2,7 @@ from family import Family, Task, Person
 import psql_connector as conn
 from datetime import datetime
 
-key_path = "./secret/session_secret.txt"
+key_path = "/var/www/pet_scheduler/secret/session_secret.txt"
 def get_key_to_session():
     key = ""
     with open(key_path) as f:
@@ -37,7 +37,7 @@ def get_user_info(person_id):
     
 def find_family_by_person_id(person_id):
 
-    family_id = conn.get_user_info(email = None, person_id = person_id)[0]
+    family_id = conn.find_family_by_person_id(person_id = person_id)
     return family_id
 
 def get_family_info(family_id):
@@ -50,7 +50,6 @@ def get_family_info(family_id):
         _type_: _description_
     """
     head_member_id, member_ids = conn.get_family_info(family_id=family_id)
-    print(member_ids)
     members = [head_member_id]
     for member_tuple in member_ids:
         member_id = member_tuple[0]
@@ -60,6 +59,12 @@ def get_family_info(family_id):
 
 def assign_task(task_id, person_id):
     conn.assign_task_to_user(task_id, person_id)
+
+def unassign_task(task_id):
+    conn.unassign_task(task_id)
+
+def change_task_complete(task_id, complete):
+    conn.change_task_complete(task_id,complete)
 
 def get_family_tasks(family_id, person_id):
     """_summary_
@@ -76,7 +81,7 @@ def get_family_tasks(family_id, person_id):
     upcoming_tasks = []
     raw_tasks = conn.get_family_tasks(family_id=family_id)
     if(len(raw_tasks) == 0):
-        return [],[],[],[]
+        return [],[],[]
     
     for raw_task in raw_tasks:
         task_id = raw_task[1]
@@ -88,7 +93,9 @@ def get_family_tasks(family_id, person_id):
 
         if completed == True:
             filled_task.change_completed(True)
-        
+            all_tasks.append(filled_task)
+            continue
+
         if cur_person_id is not None:
             name = get_user_info(cur_person_id).name
             filled_task.assign_task(cur_person_id, name)
@@ -102,9 +109,10 @@ def get_family_tasks(family_id, person_id):
 
         all_tasks.append(filled_task)
         
-    return get_formatted_task_lists(your_tasks, upcoming_tasks, available_tasks)
+    return get_formatted_task_lists(all_tasks,your_tasks, upcoming_tasks, available_tasks)
 
-def get_formatted_task_lists(your_tasks, upcoming_tasks, available_tasks):
+def get_formatted_task_lists(all_tasks,your_tasks, upcoming_tasks, available_tasks):
+
 
     sorted_your_tasks = sorted(your_tasks, key=sort_by_date_time)
     formatted_your_tasks = format_time_in_task(sorted_your_tasks)

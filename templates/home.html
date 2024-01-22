@@ -20,7 +20,7 @@
                         <a class="nav-link active" href="">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link link-secondary" href="profile.html">Family Management</a>
+                        <a class="nav-link link-secondary" href="{{url_for('profile')}}">Family Management</a>
                     </li>
                 <li class="navbar-text ml-auto">Hi, {{ person.name }}!</li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Sign out</a></li>
@@ -58,9 +58,9 @@
                                         <td>
                                             <form action="{{ url_for('home') }}" method = 'post'>
                                                 
-                                                    <button type="button" class="btn btn-outline-success btn-sm" name = 'complete_task_btn' value = {{task.task_id}}>Complete</button>
+                                                    <button type="submit" class="btn btn-outline-success btn-sm" name = 'complete_task_btn' value = {{task.task_id}}>Complete</button>
                                                     <br>
-                                                    <button type="button" class="btn btn-outline-danger btn-sm" name = 'unassign_task_btn' value = {{task.task_id}}>Unassign</button>
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm" name = 'unassign_task_btn' value = {{task.task_id}}>Unassign</button>
                                                                                                 
                                             </form>
                                         </td>

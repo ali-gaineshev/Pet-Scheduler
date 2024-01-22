@@ -17,7 +17,7 @@
             <div class="col-md-12">
                 <ul class="nav nav-pills mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link link-secondary" href="home.html">Home</a>
+                        <a class="nav-link link-secondary" href="{{url_for('home')}}">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="">Family Management</a>
@@ -44,20 +44,20 @@
                                 <h3>
                                     Add a memeber to your family!
                                 </h3>
-                                <form role="form">
+                                <form role="form" method = 'post'>
                                     <div class="form-group">
                                          
                                         <label for="member_email">
                                             Email address of the member
                                         </label>
-                                        <input type="email" class="form-control" id="member_email" />
+                                        <input type="text" class="form-control" id="member_email" name = 'new_email_input'/>
                                     </div>
                                     <div class="form-group">
                                          
                                         <label for="member_password">
                                             Password for member
                                         </label>
-                                        <input type="password" class="form-control" id="member_password" />
+                                        <input type="password" class="form-control" id="member_password" name = 'new_password_input'/>
                                     </div>
                                     <button type="submit" class="btn btn-primary">
                                         Submit

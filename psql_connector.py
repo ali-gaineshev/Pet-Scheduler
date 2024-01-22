@@ -3,7 +3,7 @@ from flask import g
 from family import Family, Task, Person
 import functools
 
-PATH_TO_PARAMS = "./secret/db_secret.txt"
+PATH_TO_PARAMS = "/var/www/pet_scheduler/secret/db_secret.txt"
 
 def read_credentials():
     """
@@ -233,7 +233,6 @@ def get_family_info(cursor, family_id):
         member_ids = cursor.fetchall()    
     except Exception as e:
         print(f"\n--ERROR getting family info: {e}\n")
-
     return head_member_id, member_ids
 
 @get_db_connection(commit = False)
