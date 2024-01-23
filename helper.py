@@ -2,7 +2,7 @@ from family import Family, Task, Person
 import psql_connector as conn
 from datetime import datetime
 
-key_path = "/var/www/pet_scheduler/secret/session_secret.txt"
+key_path = "./secret/session_secret.txt"
 def get_key_to_session():
     key = ""
     with open(key_path) as f:
@@ -28,12 +28,21 @@ def validate_user(email, password):
         return None, error
     return user_info[0], error
 
-def get_user_info(person_id):
+def get_user_info(email, password, person_id):
+    error = None
+    if person_id is None: #login as email
+        user_info = conn.get_user_info(email=email)
+        
+        if(user_info is None or password != user_info[3]):
+            error = "Incorrect email/password or no such user found"
+        return None, error
+    else:    
+        user_info = conn.get_user_info(email=None , person_id=person_id)
+        if(user_info is None):
+            error = "Something went wrong"
+        return None, error
 
-    user_info = conn.get_user_info(email=None , person_id=person_id)
-    if(user_info is None):
-        return None
-    return Person(user_info[0], user_info[1], user_info[2], user_info[3])
+    return Person(user_info[0], user_info[1], user_info[2], user_info[3]), error
     
 def find_family_by_person_id(person_id):
 
@@ -65,6 +74,21 @@ def unassign_task(task_id):
 
 def change_task_complete(task_id, complete):
     conn.change_task_complete(task_id,complete)
+
+def create_new_task(task: Task, family_id):
+    """
+
+    Args:
+        family_id (_type_): _description_
+    """
+    error = None
+    task_id = conn.create_task(task.name, task.date, task.start_time, task.end_time, family_id)
+    if task_id is None:
+        error = "Error with creating a task"
+        return None, error
+    return task_id, error
+
+
 
 def get_family_tasks(family_id, person_id):
     """_summary_

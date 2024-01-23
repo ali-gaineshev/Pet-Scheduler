@@ -1,13 +1,12 @@
 from flask import Flask, render_template, request, session, url_for, make_response, redirect, g
 import datetime
 from family import Family , Person, Task
-import psql_connector #as conn
 import helper
 
 app = Flask(__name__)
 
 app.secret_key = helper.get_key_to_session()
-URL = None
+URL = "http://64.23.162.130/"
 
 
 
@@ -80,6 +79,9 @@ def profile():
     See profile, family members, your info
     """
     person = helper.get_user_info(session['person_id'])
+
+    #if request.method == 'POST':
+                
 
     return render_template('profile.html', person = person)
 

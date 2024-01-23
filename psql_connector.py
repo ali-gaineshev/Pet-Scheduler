@@ -1,9 +1,8 @@
 import psycopg2 
 from flask import g
-from family import Family, Task, Person
 import functools
 
-PATH_TO_PARAMS = "/var/www/pet_scheduler/secret/db_secret.txt"
+PATH_TO_PARAMS = "./secret/db_secret.txt"
 
 def read_credentials():
     """
