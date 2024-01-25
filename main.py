@@ -13,8 +13,8 @@ URL = "http://64.23.162.130/"
 @app.before_request
 def before_request():
     # Check if the user is logged in and fetch user info
-    if 'person' not in session and request.endpoint == '' and request.endpoint == 'home' and request.endpoint == 'profile':
-        return redirect("/login")
+    if 'person' not in session and (request.endpoint == '' or request.endpoint == 'home' or request.endpoint == 'profile'):
+        return redirect(url_for("login"))
     
     if request.endpoint == 'login' or request.endpoint == 'signup':
         if 'person' in session:
@@ -26,7 +26,7 @@ def before_request():
 @app.route("/", methods = ['GET', 'POST'])
 def home():
     if 'person' not in session:
-        return redirect(url_for('/login'))
+        return redirect(url_for('login'))
     
     person = helper.from_json(session['person'])
 
