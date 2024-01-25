@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session, url_for, make_response, redirect, g
-import datetime
+from datetime import datetime, timedelta
 from family import Family , Person, Task
 import helper
 
@@ -13,11 +13,11 @@ URL = "http://64.23.162.130/"
 @app.before_request
 def before_request():
     # Check if the user is logged in and fetch user info
-    if 'person_id' not in session and request.endpoint != 'login' and request.endpoint != 'signup':
+    if 'person' not in session and request.endpoint == '' and request.endpoint == 'home' and request.endpoint == 'profile':
         return redirect("/login")
     
     if request.endpoint == 'login' or request.endpoint == 'signup':
-        if 'person_id' in session:
+        if 'person' in session:
             return redirect(url_for('home'))
 
 
@@ -25,13 +25,12 @@ def before_request():
 @app.route("/home")
 @app.route("/", methods = ['GET', 'POST'])
 def home():
-    if 'person_id' not in session:
+    if 'person' not in session:
         return redirect(url_for('/login'))
     
+    person = helper.from_json(session['person'])
 
     #retrieve general information
-    person = helper.get_user_info(session['person_id'])
-
     if request.method == 'POST':
         if('take_task_button' in request.form):
             taken_task_id = request.form['take_task_button']
@@ -45,7 +44,7 @@ def home():
             unassign_task_id = request.form['unassign_task_btn']
             helper.unassign_task(unassign_task_id)
 
-
+    #some for future
     family_id, members,is_head_member = get_session_info(person)
 
     result = helper.get_family_tasks(family_id=family_id, person_id=person.person_id)
@@ -61,13 +60,14 @@ def login():
         #test()
         if 'test_button' in request.form:
             request_email = 'admin'
-            request_password = 'test123'
+            request_password = 'admin123'
         else:
             request_email = request.form['email'].lower()
             request_password = request.form['password']
-        person_id, error = helper.validate_user(request_email, request_password)
+        person, error = helper.get_user_info(request_email, request_password, None)
+        session["person"] = helper.to_json(person)
         if error is None:
-            session['person_id'] = person_id
+            session['person_id'] = person.person_id
             return redirect(url_for('home'))
 
     return render_template("login.html", error = error)
@@ -78,11 +78,47 @@ def profile():
     """
     See profile, family members, your info
     """
-    person = helper.get_user_info(session['person_id'])
+    person = helper.from_json(session['person'])
+    if('family_id' not in session):
+        family_id = helper.find_family_by_person_id(person.person_id)
+    else:
+        family_id = session['family_id']
 
-    #if request.method == 'POST':
+    if(request.args.get('task_date') and request.args.get('task_start_time') and request.args.get('task_end_time')):
+        name = request.args.get('task_name_input')
+        date = request.args.get('task_date')
+        start_time = request.args.get('task_start_time')
+        end_time = request.args.get('task_end_time')
+        repeat = request.args.get('repeat_7_days')
+
+        error = helper.is_valid_date(date, start_time, end_time)
+    
+        if(error is None): #not error
+            if(len(name) >= 0 and len(name) <= 3):
+                error = "The name of the task is too short"
+
+            elif(len(name) > 30):
+                error = "Please make the name shorter"
+
+        range_value = 4 if repeat else 1
+        
+        if(error is None):
+            for i in range(range_value):#4times
+                date_to_give = datetime.strptime(date, "%Y-%m-%d") + timedelta(i * 7)
+                task = Task(name, date_to_give, start_time, end_time)
+                task_id, error = helper.create_new_task(task, family_id)   
                 
 
+        response = make_response(render_template('profile.html', person = person, error_message = error))
+
+        expires = datetime.now() + timedelta(days=365)
+        response.set_cookie('task_date', date, expires=expires, samesite = 'None')
+        response.set_cookie('task_start_time', start_time, expires=expires, samesite = 'None')
+        response.set_cookie('task_end_time', end_time, expires=expires, samesite = 'None')
+        
+        
+        return response
+    
     return render_template('profile.html', person = person)
 
 @app.route("/signup", methods = ['GET', 'POST'])
@@ -97,7 +133,7 @@ def logout():
     """
     
     session.pop('family_id', None)
-    session.pop('person_id', None)
+    session.pop('person', None)
     session.pop('members', None)
     session.pop('is_head_member', None)
     return redirect(url_for('login'))
@@ -107,8 +143,8 @@ def page_not_found(error):
     return render_template('page_not_found.html'), 404
 
 
-@app.errorhandler(Exception)
-def handle_exception(error):
+#@app.errorhandler(Exception)
+#def handle_exception(error):
     return f"""It seems like something wrong happened.\n{error}"""
 
 
@@ -129,5 +165,5 @@ def add_info_to_session(members, person_id):
     session['members'] = members
 
 if __name__ == '__main__':
-    app.run(port = 5000)
+    app.run(port = 5000, debug = True)
     #task()

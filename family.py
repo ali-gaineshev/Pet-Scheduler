@@ -6,7 +6,7 @@ class Pets:
 
 class Person:
 
-    def __init__(self, person_id, name, email, password):
+    def __init__(self, person_id, name, email, password = None):
         self.person_id = person_id #update after sql
         self.name = name
         self.email = email
@@ -96,8 +96,8 @@ class Family:
 
 class Task:
 
-    def __init__(self, id, name, date, start_time, end_time):
-        self.task_id = id
+    def __init__(self, name, date, start_time, end_time):
+        self.task_id = None
         self.name = name #the task string
         self.date = date #yyyy-mm-dd
         self.start_time = start_time
@@ -113,6 +113,8 @@ class Task:
     def change_completed(self,completed):
         self.completed = completed
 
+    def change_id(self, task_id):
+        self.task_id = task_id
 
     def edit_date(self, date, start_time, end_time):
         self.date = date

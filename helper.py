@@ -9,38 +9,27 @@ def get_key_to_session():
         key = f.readline()
     return key
 
-def validate_user(email, password):
-    """_summary_
+def to_json(person: Person):
+    json_dict = vars(person)
+    json_dict.pop('password')
+    return json_dict
 
-    Args:
-        email (_type_): _description_
-        password (_type_): _description_
+def from_json(json_dict: dict):
+    return Person(json_dict['person_id'], json_dict['name'], json_dict['email'])
 
-    Returns:
-        int: id of the person
-        string or None: error 
-    """
-    error = None
-    user_info = conn.get_user_info(email=email)
-    if(user_info is None or password != user_info[3]):
-        print(user_info)
-        error = "Incorrect email/password or no such user found"
-        return None, error
-    return user_info[0], error
-
-def get_user_info(email, password, person_id):
+def get_user_info(email = None, password = None, person_id = None):
     error = None
     if person_id is None: #login as email
         user_info = conn.get_user_info(email=email)
         
         if(user_info is None or password != user_info[3]):
             error = "Incorrect email/password or no such user found"
-        return None, error
-    else:    
-        user_info = conn.get_user_info(email=None , person_id=person_id)
+            return None, error
+    else:
+        user_info = conn.get_user_info(email=None, person_id=person_id)
         if(user_info is None):
             error = "Something went wrong"
-        return None, error
+            return None, error
 
     return Person(user_info[0], user_info[1], user_info[2], user_info[3]), error
     
@@ -113,7 +102,8 @@ def get_family_tasks(family_id, person_id):
         completed = raw_task[3]
     
         task_info = conn.get_task_info(task_id=task_id)
-        filled_task = Task(task_id, task_info[1],task_info[2], task_info[3],task_info[4])
+        filled_task = Task(task_info[1],task_info[2], task_info[3],task_info[4])
+        filled_task.change_id(task_id)
 
         if completed == True:
             filled_task.change_completed(True)
@@ -121,7 +111,7 @@ def get_family_tasks(family_id, person_id):
             continue
 
         if cur_person_id is not None:
-            name = get_user_info(cur_person_id).name
+            name = get_user_info(person_id=cur_person_id)[0].name
             filled_task.assign_task(cur_person_id, name)
 
             if(cur_person_id == person_id):
@@ -173,6 +163,23 @@ def sort_by_date_time(task):
     full_date_str = f"{date_str} {time_str}"
     return datetime.strptime(full_date_str, "%Y-%m-%d %H:%M:%S")
 
-    
+def is_valid_date(date, start_time, end_time):
+    error = None
+    cur_time = datetime.now()
+    full_date_format = '%Y-%m-%d %H:%M:%S'
 
-    
+    try:
+        start_date = datetime.strptime(f"{date} {start_time}:00", full_date_format) 
+        end_date = datetime.strptime(f"{date} {end_time}:00", full_date_format)
+
+    except Exception as e:
+        error = "Incorrect date format, should be: \"YEAR-MONTH-DAY HOUR:MINUTE\" "
+        return error , None, None
+
+    if start_date > end_date:
+        error = "Starting time should be earlier than end time"
+
+    if start_date < cur_time:
+        error = "The task you are trying to add is in the past"
+    return error
+
