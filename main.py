@@ -65,15 +65,15 @@ def login():
             request_email = request.form['email'].lower()
             request_password = request.form['password']
         person, error = helper.get_user_info(request_email, request_password, None)
-        session["person"] = helper.to_json(person)
+
         if error is None:
-            session['person_id'] = person.person_id
+            session["person"] = helper.to_json(person)
             return redirect(url_for('home'))
 
     return render_template("login.html", error = error)
 
 
-@app.route("/profile")
+@app.route("/profile", methods = ['GET', 'POST'])
 def profile():
     """
     See profile, family members, your info
@@ -83,6 +83,11 @@ def profile():
         family_id = helper.find_family_by_person_id(person.person_id)
     else:
         family_id = session['family_id']
+
+    if(request.method == 'POST'):
+        error = sign_up_user(family_id=family_id)
+        return make_response(render_template('profile.html', person = person, error_message = error))
+
 
     if(request.args.get('task_date') and request.args.get('task_start_time') and request.args.get('task_end_time')):
         name = request.args.get('task_name_input')
@@ -123,8 +128,19 @@ def profile():
 
 @app.route("/signup", methods = ['GET', 'POST'])
 def signup():
-    return render_template("signup.html")
+    error = None
+    if(request.method == 'POST'):
+        error = sign_up_user(family_id=None)
+    
+    return render_template("signup.html", error_message = error)
 
+def sign_up_user(family_id = None):
+    needed = ["new_email_input", "new_password_input", "new_name_input" ]
+    error = None
+    if(all(el in needed for el in request.form )):
+        error = helper.sign_up_user(request.form["new_email_input"], request.form['new_password_input'], 
+                            request.form['new_name_input'],family_id=family_id)
+    return error
 
 @app.route('/logout')
 def logout():
@@ -167,3 +183,5 @@ def add_info_to_session(members, person_id):
 if __name__ == '__main__':
     app.run(port = 5000, debug = True)
     #task()
+
+

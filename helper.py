@@ -1,6 +1,7 @@
 from family import Family, Task, Person
 import psql_connector as conn
 from datetime import datetime
+import re
 
 key_path = "./secret/session_secret.txt"
 def get_key_to_session():
@@ -182,4 +183,26 @@ def is_valid_date(date, start_time, end_time):
     if start_date < cur_time:
         error = "The task you are trying to add is in the past"
     return error
+
+def sign_up_user(email, password, name, family_id):
+    
+    if(len(email) == len(email.strip())):
+        try:
+            email.index('@') < email.index('.')
+        except Exception as e:
+            return f"Incorrect email type. Please use a different one. {e}"
+    else:
+        return "Please remove whitespaces"
+    
+    person_id = conn.add_user(name, email, password)
+    if(person_id is None):#already taken or error
+        return "Email is already taken. Please use a different one"
+    
+    if(family_id is None):#no family was created before
+        family_id = conn.create_family(person_id)
+    else:
+        conn.add_user_to_family(person_id, family_id)
+    
+    return "Success!"
+
 
