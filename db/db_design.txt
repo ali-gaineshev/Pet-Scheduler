@@ -1,0 +1,86 @@
+CREATE TABLE Persons (
+    person_id INT SERIAL PRIMARY KEY
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    password TEXT NOT NULL,
+    Primary key (person_id)    
+);
+
+CREATE TABLE Tasks (
+    task_id SERIAL,
+    name TEXT NOT NULL,
+    date DATE NOT NULL,
+    person_id INT,
+    PRIMARY KEY (task_id),
+    FOREIGN KEY (person_id) REFERENCES Persons(person_id)
+);
+
+CREATE TABLE Families (
+    family_id SERIAL,
+    head_member_id INTEGER ,
+    PRIMARY KEY (family_id),
+    FOREIGN KEY (person_id) REFERENCES Persons(person_id)
+);
+
+CREATE TABLE FamilyMembers (
+    family_id INTEGER 
+    person_id INTEGER 
+    PRIMARY KEY (family_id, person_id),
+    FOREIGN KEY (family_id) REFERENCES Families(family_id)
+);
+
+CREATE TABLE FamilyTasks(
+    family_id int,
+    task_id int,
+    person_id int, 
+    completed BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY (family_id, task_id) 
+    FOREIGN KEY (family_id) REFERENCES Families(family_id)
+    FOREIGN KEY (task_id) REFERENCES Tasks(task_id) 
+);
+CREATE TABLE Pets (
+    pet_id SERIAL PRIMARY KEY,
+    family_id INTEGER,
+    name TEXT NOT NULL,
+    FOREIGN KEY (family_id) REFERENCES Families(family_id)
+);
+
+-- Drop foreign keys to person_id
+ALTER TABLE TASKS DROP CONSTRAINT tasks_person_id_fkey;
+ALTER TABLE FAMILIES DROP CONSTRAINT families_head_member_id_fkey;
+
+-- Change the primary key of PERSONS to email and make person_id unique
+ALTER TABLE Persons DROP CONSTRAINT Persons_pkey;
+ALTER TABLE Persons ADD CONSTRAINT unique_person_id UNIQUE (person_id);
+ALTER TABLE Persons ADD CONSTRAINT primary_key_email PRIMARY KEY (email);
+
+-- Recreate foreign key constraints
+ALTER TABLE TASKS ADD CONSTRAINT tasks_person_id_fkey FOREIGN KEY (person_id) REFERENCES Persons(person_id);
+ALTER TABLE FAMILIES ADD CONSTRAINT families_head_member_id_fkey FOREIGN KEY (head_member_id) REFERENCES Persons(person_id);
+ALTER TABLE FAMILYMEMBERS ADD CONSTRAINT familymembers_person_id_fkey FOREIGN KEY (person_id) REFERENCES Persons(person_id);
+
+ALTER TABLE tasks drop column person_id;
+
+
+CREATE OR REPLACE FUNCTION clean_for_test()
+RETURNS VOID AS
+$$
+BEGIN
+  DELETE FROM familymembers WHERE family_id <> 1;
+  DELETE FROM FAMILYTASKS;
+  delete from familymembers where person_id <> 1;
+   DELETE FROM tasks;
+    DELETE FROM families WHERE family_id <> 1;
+     DELETE FROM persons WHERE person_id <> 1;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+ALTER TABLE TASKS ADD CHECK (end_time > start_time);
+ADD COLUMN start_time TIME NOT NULL CHECK (start_time >= '00:00' AND start_time < '24:00');
+ADD COLUMN end_time TIME NOT NULL CHECK (start_time >= '00:00' AND start_time < '24:00');
+
+
+
+

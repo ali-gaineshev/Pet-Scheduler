@@ -5,7 +5,4 @@ __pycache__/
 #logs
 logs/
 
-db_design.txt
-
-
 secret/
