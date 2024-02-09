@@ -37,7 +37,6 @@ Family Pet Scheduler is a monolithic Flask application built in Python to help f
     cd db
     createdb -U <username> pet_scheduler_db
     psql -U <username> -d pet_scheduler_db -f db.sql
-    psql -U <username> -d pet_scheduler_db
     ```
     - Create `db_secret.txt` file with your database credentials.
 
