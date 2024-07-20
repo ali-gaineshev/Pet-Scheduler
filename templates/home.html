@@ -11,7 +11,7 @@
     <title>Home Page</title>
   </head>
   <body>
-    
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
@@ -20,11 +20,11 @@
                         <a class="nav-link active" href="">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link link-secondary" href="{{url_for('profile')}}">Family Management</a>
+                        <a class="nav-link link-secondary" href="#">Family Management</a>
                     </li>
                 <li class="navbar-text ml-auto">Hi, {{ person.name }}!</li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Sign out</a></li>
-            
+                <li class="nav-item"><a class="nav-link" href="#">Sign out</a></li>
+
                 </ul>
                 <br>
                 <div class="row">
@@ -56,12 +56,12 @@
                                         <td>{{task.date}}</td>
                                         <td>{{task.start_time}} - {{task.end_time}}</td>
                                         <td>
-                                            <form action="{{ url_for('home') }}" method = 'post'>
-                                                
+                                            <form action="#" method = 'post'>
+
                                                     <button type="submit" class="btn btn-outline-success btn-sm" name = 'complete_task_btn' value = {{task.task_id}}>Complete</button>
                                                     <br>
                                                     <button type="submit" class="btn btn-outline-danger btn-sm" name = 'unassign_task_btn' value = {{task.task_id}}>Unassign</button>
-                                                                                                
+
                                             </form>
                                         </td>
                                     </tr>
@@ -134,7 +134,7 @@
                                         <td>{{task.date}}</td>
                                         <td>{{task.start_time}} - {{task.end_time}}</td>
                                         <td>
-                                            <form action="{{ url_for('home') }}" method = 'post'>
+                                            <form action="#" method = 'post'>
                                                 <button type="submit" class="btn btn-sm btn-success active" name="take_task_button" value={{ task.task_id }}>
                                                     Take
                                                 </button>

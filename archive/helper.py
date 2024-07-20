@@ -3,7 +3,7 @@ import psql_connector as conn
 from datetime import datetime
 from typing import Optional
 
-key_path = "./secret/session_secret.txt"
+key_path = "../secret/session_secret.txt"
 
 def get_key_to_session():
     """ 

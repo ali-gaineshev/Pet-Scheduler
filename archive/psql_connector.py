@@ -2,7 +2,7 @@ import psycopg2
 from flask import g
 import functools
 
-PATH_TO_PARAMS = "./secret/db_secret.txt"
+PATH_TO_PARAMS = "../secret/db_secret.txt"
 
 def read_credentials():
     """
