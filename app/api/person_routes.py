@@ -12,7 +12,7 @@ from app.config.logger_config import setup_logger
 from app.models.family import *
 from app.models.response import ResponseEntity
 from app.models.exceptions import *
-from app.models.error_messages import ErrorMessage
+from app.models.response_messages import *
 
 person_bp = Blueprint('person_routes', __name__, url_prefix='/api')
 LOGGER = setup_logger("PERSON API")
@@ -26,9 +26,24 @@ def validate_login():
 
     if person is None:
         raise NotFoundException(ErrorMessage.PERSON_DOES_NOT_EXIST_LOGIN)
-    LOGGER.debug(f"HERE")
-    LOGGER.debug(f"Person: {person}")
+    
+    LOGGER.debug(f"Person logged in: {person}")
     return ResponseEntity.ok(**person.to_dict())
+
+
+@person_bp.route("/registerNewUser", methods=['POST'])
+@Utility.exception_handler()
+def insert_person():
+    name, email, password = (Utility.
+                            verify_request_and_get_data(request, Person.NAME, Person.EMAIL, Person.PASSWORD))
+
+    person: Person = Person(email=email, name=name)
+
+    is_success = DatabaseUtility.commit_new_person(person, password)
+    if is_success != DatabaseUtility.SUCCESS:
+        raise PersonAlreadyExistException(ErrorMessage.PERSON_ALREADY_EXISTS)
+
+    return ResponseEntity.ok(**{"alert_message": OkMessage.SUCCESS})
 
 @person_bp.route("/getPersonInfo/", methods=['GET'])
 @Utility.exception_handler()
@@ -40,20 +55,6 @@ def get_person_info_by_id():
         raise NotFoundException(ErrorMessage.PERSON_DOES_NOT_EXIST)
 
     return ResponseEntity.ok(**person.to_dict())
-
-
-@person_bp.route("/insertNewPerson", methods=['POST'])
-@Utility.exception_handler()
-def insert_person():
-    data = Utility.retrieve_data_from_json_or_form_or_args(request)
-    name, email, password = Utility.verify_request_and_get_data(request, Person.NAME, Person.EMAIL, Person.PASSWORD)
-
-    p: Person = Person(email=email, name=name)
-    person_id = DatabaseUtility.commit_new_person(p, password)
-    if not person_id:
-        raise NotFoundException(ErrorMessage.PERSON_DOES_NOT_EXIST)
-
-    return ResponseEntity.ok(**{"person_id": person_id})
 
 
 @person_bp.route("/checkIfPersonExists", methods=['POST'])

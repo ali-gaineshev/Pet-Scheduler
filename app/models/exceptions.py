@@ -44,3 +44,14 @@ class NotFoundException(Exception):
     def __init__(self, message: str):
         super().__init__(message)
         self.message = message
+
+class PersonAlreadyExistException(Exception):
+    """Exception raised when person account already exist while trying to sign up
+
+    Attributes:
+        message (str): The error message describing the exception.
+    """
+
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message

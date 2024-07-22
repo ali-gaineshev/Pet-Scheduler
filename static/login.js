@@ -6,6 +6,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     const password = document.getElementById("inputPassword").value;
     if (!email || !password) {
         alert("Please enter a valid information");
+        return
     }
 
     const response = await fetch("/api/validateLogin", {
@@ -16,12 +17,10 @@ document.getElementById("loginForm").addEventListener("submit", async function (
         body: JSON.stringify({ email, password })
     });
     const result = await response.json();
-    if(result.ok === undefined || result.body === undefined){
-        window.location.replace()
-    }
-      result.ok === false  || result.body.message === undefined || result.body.message === "error" || result.body.error_message !== undefined
-    ) {
-        alert(result.body.error_message);
-    }
+
     console.log(result);
 })
+
+function responseError(response){
+    
+}

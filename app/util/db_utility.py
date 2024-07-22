@@ -4,7 +4,7 @@
 from app.models.enums import DB_POSITION
 from app.models.family import *
 from app.models.exceptions import DatabaseException
-from app.models.error_messages import ErrorMessage
+from app.models.response_messages import ErrorMessage
 # config
 from app.config.logger_config import setup_logger
 # utility
@@ -22,6 +22,8 @@ LOGGER = setup_logger("DB_UTILITY")
 
 class DatabaseUtility:
     """ Database utility functions that execute queries """
+
+    SUCCESS = 0
 
     class PersonTransaction:
 
@@ -72,34 +74,33 @@ class DatabaseUtility:
 
         @staticmethod
         @Connection.get_db_connection(commit=True)
-        def commit_new_person(cursor, person: Person, password: str):
-            try:
-                name = person.get_name()
-                email = person.get_email()
+        def commit_new_person(cursor, person: Person, password: str) -> None | int:
 
-                if Utility.assert_not_null(name, email, password) or Utility.assert_not_blank(name, email, password):
-                    raise DatabaseException("One of the input parameters is empty")
+            hashed_password = Encrypt.hash_password(password)# Store hashed password in db
 
-                # Store hashed password in db
-                hashed_password = Encrypt.hash_password(password)
+            query, params = Query.insert_new_person(
+                name=person.get_name(),
+                email=person.get_email(),
+                hashed_password=hashed_password
+            )
+            info = (Transaction.
+                    request_database_fetchone(cursor, query, params, ErrorMessage.ERROR_REGISTERING))
 
-                query, params = Query.insert_new_person(
-                    name=person.get_name(),
-                    email=person.get_email(),
-                    hashed_password=hashed_password
-                )
-                cursor.execute(query, params)
-                info = cursor.fetchone()
+            if info is None:
+                LOGGER.debug(f"Error registering new person with email - {person.get_email()}")
+                return None
 
-                if Utility.assert_not_null(info):
-                    LOGGER.debug(f"Person id for inserting new person was not created")
-                    return None
+            return DatabaseUtility.SUCCESS
 
-                return info[DB_POSITION.PERSON_PERSON_ID.value]
-            except Exception as e:
-                LOGGER.error("Error inserting new person: %s", e)
-                raise DatabaseException("Error inserting new person", e)
+        @staticmethod
+        @Connection.get_db_connection()
+        def check_if_person_exists(cursor, email: str) -> bool:
+            query, params = Query.check_person_exists(email=email)
+            person_exists = (Transaction.
+                      request_database_fetchone(cursor, query, params, ErrorMessage.GENERAL_ERROR))
 
+            return person_exists if person_exists is not None else False
+        
     @staticmethod
     @Connection.get_db_connection(commit=True)
     def commit_new_task(cursor, task: Task):

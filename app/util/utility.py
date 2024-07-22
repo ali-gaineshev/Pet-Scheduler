@@ -52,6 +52,10 @@ class Utility:
                     LOGGER.error("Not Found error occurred")
                     return ResponseEntity.not_found_error(str(not_found_exception))
 
+                except PersonAlreadyExistException as person_exists_exception:
+                    LOGGER.error("Person already exists error occurred")
+                    return ResponseEntity.bad_request_error(str(person_exists_exception))
+
                 except Exception as e:
                     LOGGER.error("An unexpected error occurred")
                     return ResponseEntity.internal_server_error(str(e))
