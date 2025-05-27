@@ -1,6 +1,7 @@
 # app/__init__.py
 
 from flask import Flask
+
 # db connection
 from app.util.db_connection import Connection
 

@@ -20,7 +20,7 @@ class Transaction:
     """
 
     @staticmethod
-    def request_database_fetchone(conn_cursor: "cursor", query: str, params: tuple, exception_message: str)\
+    def request_database_fetchone(conn_cursor: "cursor", query: str, params: tuple, exception_message: str) \
             -> tuple[str, ...]:
         """
         Executes a query to fetch a single record from the database.
@@ -30,11 +30,11 @@ class Transaction:
             conn_cursor.execute(query, params)
             return conn_cursor.fetchone()
         except Exception as e:
-            LOGGER.error(exception_message, e)
+            LOGGER.error(f"{exception_message}:\n{str(e)}")
             raise DatabaseException(exception_message, e)
 
     @staticmethod
-    def request_database_fetchall(conn_cursor: "cursor", query: str, params: tuple, exception_message: str)\
+    def request_database_fetchall(conn_cursor: "cursor", query: str, params: tuple, exception_message: str) \
             -> tuple[str, ...]:
         """
         Executes a query to fetch all records from the database.
@@ -44,5 +44,13 @@ class Transaction:
             conn_cursor.execute(query, params)
             return conn_cursor.fetchall()
         except Exception as e:
-            LOGGER.error(exception_message, e)
+            LOGGER.error(f"{exception_message}:\n{str(e)}")
+            raise DatabaseException(exception_message, e)
+
+    @staticmethod
+    def execute_query(conn_cursor: "cursor", query: str, params: tuple, exception_message: str) -> None:
+        try:
+            conn_cursor.execute(query, params)
+        except Exception as e:
+            LOGGER.error(f"{exception_message}:\n{str(e)}")
             raise DatabaseException(exception_message, e)

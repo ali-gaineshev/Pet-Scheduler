@@ -3,7 +3,7 @@
 # models
 from app.models.enums import DB_POSITION
 from app.models.family import *
-from app.models.exceptions import DatabaseException
+from app.models.enums import CONSTANTS
 from app.models.response_messages import ErrorMessage
 # config
 from app.config.logger_config import setup_logger
@@ -22,8 +22,6 @@ LOGGER = setup_logger("DB_UTILITY")
 
 class DatabaseUtility:
     """ Database utility functions that execute queries """
-
-    SUCCESS = 0
 
     class PersonTransaction:
 
@@ -76,31 +74,32 @@ class DatabaseUtility:
         @Connection.get_db_connection(commit=True)
         def commit_new_person(cursor, person: Person, password: str) -> None | int:
 
-            hashed_password = Encrypt.hash_password(password)# Store hashed password in db
+            hashed_password = Encrypt.hash_password(password)  # Store hashed password in db
 
             query, params = Query.insert_new_person(
                 name=person.get_name(),
                 email=person.get_email(),
                 hashed_password=hashed_password
             )
+
             info = (Transaction.
-                    request_database_fetchone(cursor, query, params, ErrorMessage.ERROR_REGISTERING))
+                    execute_query(cursor, query, params, ErrorMessage.ERROR_REGISTERING))
 
             if info is None:
                 LOGGER.debug(f"Error registering new person with email - {person.get_email()}")
                 return None
 
-            return DatabaseUtility.SUCCESS
+            return CONSTANTS.SUCCESS_OPERATION.value
 
         @staticmethod
         @Connection.get_db_connection()
         def check_if_person_exists(cursor, email: str) -> bool:
             query, params = Query.check_person_exists(email=email)
             person_exists = (Transaction.
-                      request_database_fetchone(cursor, query, params, ErrorMessage.GENERAL_ERROR))
+                             request_database_fetchone(cursor, query, params, ErrorMessage.GENERAL_ERROR))
 
             return person_exists if person_exists is not None else False
-        
+
     @staticmethod
     @Connection.get_db_connection(commit=True)
     def commit_new_task(cursor, task: Task):

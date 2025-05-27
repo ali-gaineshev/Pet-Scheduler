@@ -10,7 +10,7 @@ from app.models.enums import HUMAN_READABLE_PARAMS
 # helpers
 import functools
 # type hints
-from typing import Dict, Tuple, Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -41,23 +41,28 @@ class Utility:
                     response = func(*args, **kwargs)
 
                 except DatabaseException as database_exception:
-                    LOGGER.error("Database error occurred")
-                    return ResponseEntity.internal_server_error(str(database_exception))
+                    LOGGER.error(f"Caught Error. Database error occurred)")
+                    LOGGER.error({str(database_exception)})
+                    return ResponseEntity.internal_server_error(database_exception.message)
 
                 except MissingInputParameterException as missing_input_exception:
-                    LOGGER.error("Missing Input Param error occurred")
-                    return ResponseEntity.bad_request_error(str(missing_input_exception))
+                    LOGGER.error(f"Caught Error. Missing Input Param error occurred)")
+                    LOGGER.error({str(missing_input_exception)})
+                    return ResponseEntity.bad_request_error(missing_input_exception.message)
 
                 except NotFoundException as not_found_exception:
-                    LOGGER.error("Not Found error occurred")
+                    LOGGER.error(f"Caught Error. Not Found error occurred)")
+                    LOGGER.error({str(not_found_exception)})
                     return ResponseEntity.not_found_error(str(not_found_exception))
 
                 except PersonAlreadyExistException as person_exists_exception:
-                    LOGGER.error("Person already exists error occurred")
-                    return ResponseEntity.bad_request_error(str(person_exists_exception))
+                    LOGGER.error(f"Caught Error. Person already exists error occurred)")
+                    LOGGER.error({str(person_exists_exception)})
+                    return ResponseEntity.bad_request_error(person_exists_exception.message)
 
                 except Exception as e:
-                    LOGGER.error("An unexpected error occurred")
+                    LOGGER.error(f"Caught Error. An unexpected error) occurred")
+                    LOGGER.error({str(e)})
                     return ResponseEntity.internal_server_error(str(e))
 
                 return response
@@ -67,7 +72,7 @@ class Utility:
         return decorator
 
     @staticmethod
-    def retrieve_data(request_data: "Request") -> dict:
+    def retrieve_data(request_data: "Request") -> dict[str, Any]:
         """
         Retrieve data from a Flask request, handling both JSON and form-encoded data.
 
@@ -94,7 +99,15 @@ class Utility:
         return data
 
     @staticmethod
-    def verify_not_missing_param_in_request(request: Dict[str, str], params_dict: Dict[str, str]) -> None:
+    def get_params_to_human_readable_params_dict(*params: str) -> dict[str, str]:
+        """
+        Returns a dictionary of parameter passed to human-readable form.
+        See HUMAN_READABLE_PARAMETERS in enums.py
+        """
+        return HUMAN_READABLE_PARAMS.get_readable_dict(*params)
+
+    @staticmethod
+    def verify_not_missing_param_in_request(request: dict[str, Any], params_dict: dict[str, str]) -> None:
         """
         Verify if a parameter is missing in the request data.
 
@@ -114,15 +127,7 @@ class Utility:
                 raise MissingInputParameterException(message=params_dict[key] + " is missing!")
 
     @staticmethod
-    def get_params_to_human_readable_params_dict(*params: str) -> Dict[str, str]:
-        """
-        Returns a dictionary of parameter passed to human-readable form.
-        See HUMAN_READABLE_PARAMETERS in enums.py
-        """
-        return HUMAN_READABLE_PARAMS.get_readable_dict(*params)
-
-    @staticmethod
-    def verify_request_and_get_data(request: "Request", *params_needed: str) -> Tuple[Any, ...]:
+    def verify_request_and_get_data(request: "Request", *params_needed: str) -> tuple[Any, ...]:
         request_dict = Utility.retrieve_data(request)  # gets dict of params to value
         params_to_readable_dict = Utility.get_params_to_human_readable_params_dict(*params_needed)
         # gets dict of params to readable strings
@@ -131,7 +136,7 @@ class Utility:
         return tuple(request_dict.get(key) for key in request_dict.keys())
 
     @staticmethod
-    def assert_not_null(*args):
+    def assert_not_null(*args) -> bool:
         """
         Check if any of the provided arguments are None. If instance of tuple
         then check every element in it
@@ -153,7 +158,7 @@ class Utility:
         return False
 
     @staticmethod
-    def assert_not_blank(*args):
+    def assert_not_blank(*args) -> bool:
         """
         Check if any of the provided arguments are empty or whitespace-only strings.
 
@@ -169,7 +174,7 @@ class Utility:
         return False
 
     @staticmethod
-    def assert_not_null_then_blank(*args):
+    def assert_not_null_then_blank(*args) -> bool:
         """
         Check if any of the provided arguments are None or blank strings.
 

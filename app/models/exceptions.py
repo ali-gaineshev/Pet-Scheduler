@@ -45,6 +45,7 @@ class NotFoundException(Exception):
         super().__init__(message)
         self.message = message
 
+
 class PersonAlreadyExistException(Exception):
     """Exception raised when person account already exist while trying to sign up
 
@@ -52,6 +53,16 @@ class PersonAlreadyExistException(Exception):
         message (str): The error message describing the exception.
     """
 
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+
+class CaughtException(Exception):
+    """
+    Exception raised when a caught exception occurs.
+    For database rollback purposes
+    """
     def __init__(self, message: str):
         super().__init__(message)
         self.message = message

@@ -56,7 +56,7 @@ def home():
     result = helper.get_family_tasks(family_id=family_id, person_id=person.person_id)
     your_tasks, upcoming_tasks, available_tasks = result[0], result[1], result[2]
     
-    return render_template("home.html", person = person, your_tasks = your_tasks,
+    return render_template("homeM.html", person = person, your_tasks = your_tasks,
                            upcoming_tasks = upcoming_tasks, available_tasks = available_tasks)
 
 

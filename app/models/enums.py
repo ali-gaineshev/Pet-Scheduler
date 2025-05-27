@@ -34,6 +34,10 @@ class STATUS_CODE(Enum):
     INTERNAL_SERVER_ERROR = 500
 
 
+class CONSTANTS(Enum):
+    SUCCESS_OPERATION = 1
+
+
 class HUMAN_READABLE_PARAMS(Enum):
     """ Enum of common parameters and version of them in more human-readable form. """
 

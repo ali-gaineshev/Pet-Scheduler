@@ -1,8 +1,9 @@
 # app/api/person_routes.py
 
 # flask
-from flask import Blueprint
-from flask import request
+from flask import Blueprint, request
+
+from app.models.enums import CONSTANTS
 # util
 from app.util.db_utility import DatabaseUtility
 from app.util.utility import Utility
@@ -26,8 +27,8 @@ def validate_login():
 
     if person is None:
         raise NotFoundException(ErrorMessage.PERSON_DOES_NOT_EXIST_LOGIN)
-    
-    LOGGER.debug(f"Person logged in: {person}")
+
+    LOGGER.debug(f"Person logged in:\n{person}")
     return ResponseEntity.ok(**person.to_dict())
 
 
@@ -35,15 +36,16 @@ def validate_login():
 @Utility.exception_handler()
 def insert_person():
     name, email, password = (Utility.
-                            verify_request_and_get_data(request, Person.NAME, Person.EMAIL, Person.PASSWORD))
+                             verify_request_and_get_data(request, Person.NAME, Person.EMAIL, Person.PASSWORD))
 
     person: Person = Person(email=email, name=name)
 
-    is_success = DatabaseUtility.commit_new_person(person, password)
-    if is_success != DatabaseUtility.SUCCESS:
+    is_success = DatabaseUtility.PersonTransaction.commit_new_person(person, password)
+    if is_success != CONSTANTS.SUCCESS_OPERATION.value:
         raise PersonAlreadyExistException(ErrorMessage.PERSON_ALREADY_EXISTS)
 
     return ResponseEntity.ok(**{"alert_message": OkMessage.SUCCESS})
+
 
 @person_bp.route("/getPersonInfo/", methods=['GET'])
 @Utility.exception_handler()
@@ -53,27 +55,5 @@ def get_person_info_by_id():
     person: Person = DatabaseUtility.PersonTransaction.get_person_info_by_id(person_id)
     if not person:
         raise NotFoundException(ErrorMessage.PERSON_DOES_NOT_EXIST)
-
-    return ResponseEntity.ok(**person.to_dict())
-
-
-@person_bp.route("/checkIfPersonExists", methods=['POST'])
-@Utility.exception_handler()
-def login():
-    data = Utility.retrieve_data_from_json_or_form_or_args(request)
-
-    if (not data.get('email')):
-        raise MissingInputParameterException(message="Email is missing")
-    if (not data.get('password')):
-        raise MissingInputParameterException(message="Password is missing")
-
-    email = data.get('email')
-    password = data.get('password')
-
-    person: Person = DatabaseUtility.login(email, password)
-
-    if (not person or Utility.assert_not_null_then_blank
-        (person.get_email(), person.get_name(), person.get_person_id())):
-        return ResponseEntity.error("Wrong login credentials")
 
     return ResponseEntity.ok(**person.to_dict())

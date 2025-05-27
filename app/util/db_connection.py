@@ -48,7 +48,7 @@ class Connection:
                 LOGGER.info("Database is connected")
         except Exception as e:
             LOGGER.error("Couldn't connect to the database! Something went wrong either with the server, username or "
-                         "password.", e)
+                         + "password.\n" + str(e))
             return None
 
         return g.db
@@ -56,7 +56,7 @@ class Connection:
     @staticmethod
     def close_db(e=None):
         if e is not None:
-            LOGGER.error("Error with closing the db", e)
+            LOGGER.error(f"Error with closing the db:\n{str(e)}")
             return
 
         db = g.pop('db', None)
@@ -86,7 +86,7 @@ class Connection:
                         return result
                 except Exception as e:
                     conn.rollback()  # Rollback in case of error
-                    LOGGER.critical(f"Error with conn to db", e)
+                    LOGGER.critical(f"Error with conn to db:\n{e}")
                     return None
 
             return wrapper
