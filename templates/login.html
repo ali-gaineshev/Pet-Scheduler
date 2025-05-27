@@ -21,49 +21,38 @@
                 <h3>
                     Login In
                 </h3>
-                <form role="form" action="{{ url_for('login') }}" method="post">
+
+                <form role="form" id="loginForm" method="post">
                     <div class="form-group">
-                        <label for="exampleInputEmail1">
-                            Email address
-                        </label>
-                        <input type="text" name="email" class="form-control" id="exampleInputEmail1" required />
+                        <label for="inputEmail">Email address</label>
+                        <input type="text" name="email" class="form-control" id="inputEmail" required />
                     </div>
                     <div class="form-group">
-                        <label for="exampleInputPassword1">
-                            Password
-                        </label>
-                        <input type="password" name="password" class="form-control" id="exampleInputPassword1"
-                            required />
+                        <label for="inputPassword">Password</label>
+                        <input type="password" name="password" class="form-control" id="inputPassword" required />
                     </div>
                     <div class="checkbox">
-                        <label>
-                            <input type="checkbox" /> Remember Me
-                        </label>
+                        <label><input type="checkbox" /> Remember Me</label>
                     </div>
-                    <button type="submit" class="btn btn-primary">
-                        Submit
-                    </button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
-                {% if error %}
+
                 <br>
-                <label for="error" style="color: red; margin-top: 10px;"> {{error}}</label>
-                {% endif %}
+                <label id="errorMessage" for="error" style="color: red; margin-top: 10px;">error_placeholder</label>
                 <hr class="my-4">
-                <p class="mr-3">Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a></p>
+                <label class="mr-3" for="signUp">Don't have an account? <a id="signUp" href="/signup">Sign Up</a></label>
 
                 <!-- New Section -->
-                <!-- New Section -->
-                <form role="form" action="{{ url_for('login') }}" method="post">
-                    <!-- Form fields go here -->
+                <form id="testForm" role="form">
                     <div class="d-flex justify-content-between">
-                        <p class="mr-3">Want to test the application?</p>
-                        <button type="submit" name="test_button" class="btn btn-link">Test</button>
+                        <label class="mr-3" for="testButton">Want to test the application?</label>
+                        <button type="submit" name="test_button" id="testButton" class="btn btn-link">Test</button>
                     </div>
                 </form>
 
             </div>
         </div>
     </div>
+    <script src="{{ url_for('static', filename='login.js') }}"></script>
 </body>
-
 </html>

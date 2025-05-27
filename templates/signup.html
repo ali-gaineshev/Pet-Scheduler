@@ -21,7 +21,7 @@
             <div class="col-md-12">
                 <ul class="nav nav-pills mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link link-secondary" href="{{url_for('home')}}">Home</a>
+                        <a class="nav-link link-secondary" href="{{ url_for('main.home') }}">Home</a>
                     </li>
                 </ul>
             </div>
@@ -30,16 +30,11 @@
         <div class="container-fluid d-flex justify-content-center mt-5 ">
             <div class="row">
                 <div class="col-md-12">
-                    <h3>
-                        Sign Up
-                    </h3>
+                    <h3>Sign Up</h3>
                     <form role="form" method ='post'>
                         <div class="form-group">
-                            
-                            <label for="name">
-                               Name
-                            </label>
-                            <input type="name" class="form-control" id="name" name="new_name_input" required/>
+                            <label for="InputName">Name</label>
+                            <input type="text" class="form-control" id="InputName" name="name1" required/>
                         </div>
 
                         <div class="form-group">

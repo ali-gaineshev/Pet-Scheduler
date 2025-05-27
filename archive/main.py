@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, session, url_for, make_response, redirect
 from datetime import datetime, timedelta
-from family import Family , Person, Task
+from family import Person, Task
 import helper
 
 app = Flask(__name__)
@@ -56,8 +56,8 @@ def home():
     result = helper.get_family_tasks(family_id=family_id, person_id=person.person_id)
     your_tasks, upcoming_tasks, available_tasks = result[0], result[1], result[2]
     
-    return render_template("home.html", person = person, your_tasks = your_tasks,
-                           upcoming_tasks = upcoming_tasks,available_tasks = available_tasks)
+    return render_template("homeM.html", person = person, your_tasks = your_tasks,
+                           upcoming_tasks = upcoming_tasks, available_tasks = available_tasks)
 
 
 @app.route("/login", methods = ['GET', 'POST'])
@@ -159,8 +159,8 @@ def sign_up_user(family_id = None):
     needed = ["new_email_input", "new_password_input", "new_name_input" ]
     error = None
     if(all(el in needed for el in request.form )):
-        error = helper.sign_up_user(request.form["new_email_input"], request.form['new_password_input'], 
-                            request.form['new_name_input'],family_id=family_id)
+        error = helper.sign_up_user(request.form["new_email_input"], request.form['new_password_input'],
+                                    request.form['new_name_input'], family_id=family_id)
     return error
 
 @app.route('/logout')

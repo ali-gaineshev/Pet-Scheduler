@@ -1,0 +1,18 @@
+
+
+
+Person
+/login POST
+/signup POST
+/personInfoById
+/personInfoByEmail
+/personExistsByEmail
+
+Family
+/GetFamilyIdByPersonId
+/GetFamilyMembersByPersonId
+
+Tasks
+/AllTasksByFamilyId
+
+

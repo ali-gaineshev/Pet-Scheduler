@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+blinker = "==1.7.0"
+click = "==8.1.7"
+flask = "==3.0.1"
+itsdangerous = "==2.1.2"
+jinja2 = "==3.1.3"
+markupsafe = "==2.1.4"
+psycopg2-binary = "==2.9.9"
+werkzeug = "==3.0.1"
+bcrypt = "*"
+python-dotenv = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
